@@ -35,6 +35,7 @@ Classic War turn-based card game mixed with fast slot-like play.
 - **Effect Priority:** Effect happens even if you lose the turn (unless the effect explicitly states otherwise or is negated).
 - **Capture:** Goes to the bottom of the winner’s deck exactly like any other card — can be stolen and used by the opponent.
 - **Visuals:** Full-bleed hero portrait, gold border, epic particle burst + unique sound when revealed.
+- **Haptic:** Signature card pattern (HAPTIC_006) - epic vibration pattern for signature card reveal
 
 #### Joker Rules
 
@@ -50,9 +51,10 @@ Classic War turn-based card game mixed with fast slot-like play.
 **Joker Turn Flow:**
 1. Player draws Joker
 2. That player's deck immediately shuffles
-3. Rank comparison: Joker wins (highest rank)
-4. Damage dealt, cards captured normally
-5. Joker goes to bottom of winner's deck after capture
+3. **Haptic:** Joker shuffle pattern (HAPTIC_010) - distinct vibration pattern for shuffle moment
+4. Rank comparison: Joker wins (highest rank)
+5. Damage dealt, cards captured normally
+6. Joker goes to bottom of winner's deck after capture
 
 #### Specials Rules
 
@@ -212,6 +214,7 @@ After starting the app removes pre-game CTAs and displays Decks (showing # of ca
      - Overlay shows all owned Battle Items with remaining charges
      - Each Battle Item shows: Icon, name, effect description
      - Player selects Battle Item to activate
+     - Haptic: Battle Item activate pulse (HAPTIC_011) - confirmation pulses for item activation
      - Battle Item effect applies to upcoming draw (e.g., "+2 rank to next card", "Predict next card", "Extra draw")
      - Battle Item charge consumed (charges remaining decreases)
      - Overlay closes, effect indicator appears on status banner
@@ -229,6 +232,7 @@ After starting the app removes pre-game CTAs and displays Decks (showing # of ca
 3. **Card Draw Phase**
    - Player taps `Play` to start the game turn
    - Sound: Card flip sound (crisp chiptune)
+   - Haptic: Card flip pulse (HAPTIC_001) - subtle vibration when cards revealed
    - Animation: Cards slide from decks to center battle zone (simultaneous for both)
    - Animation: Card flip reveal (180° rotate, face-up)
    - State: Cards drawn from shuffled decks, ranks compared
@@ -237,23 +241,26 @@ After starting the app removes pre-game CTAs and displays Decks (showing # of ca
 3. **Resolution Phase**
    - Winner determined by card rank comparison
    - Sound: Win jingle (triumphant) or loss sound (low rumble)
+   - Haptic: Turn win pulse (HAPTIC_002) OR turn loss pulse (HAPTIC_003) - distinct patterns for win vs loss
    - Animation: Cards slide toward winner's deck area
    - State: Damage calculated (base + rank bonus), cards captured
    - Messaging: Status banner shows winner ("You Win!" or "Enemy Wins!")
 
 4. **Post-Win Flow - Player Win:**
    - Sound: Win jingle, card capture sound
+   - Haptic: Turn win pulse (HAPTIC_002) - triple pulse for victory
    - Animation: Cards slide to player deck, damage flash on enemy HP bar
    - State: Damage applied to enemy HP, cards added to player deck bottom, suit charges updated based on captured cards, Warlord charge progress updated (wins)
    - Messaging: Status banner shows "You Win! +X Damage"
    - Animation: Gold and XP rewards displayed (popup animation with numbers)
    - **Chain Check:** System checks for chain triggers (suit chains and poker-style chains)
-   - **Chain Trigger:** If chain threshold reached, burst effect triggers immediately (visual explosion, sound, effect applied)
+   - **Chain Trigger:** If chain threshold reached, burst effect triggers immediately (visual explosion, sound, haptic: HAPTIC_005 - epic chain burst pattern, effect applied)
    - **Specials Icons Update:** Inline special icons on main board update to show ready status (glowing if ready, dimmed if unready)
    - Ready specials: Icons glow with pulsing animation (color matches suit)
    - Unready specials: Icons dimmed, show charge progress on tap (tooltip: "3/4 Hearts captured")
    - Player can tap ready special icons to activate (0-2 specials per turn)
    - Sound: Special activation sound (varies by type)
+   - Haptic: Special activate pulse (HAPTIC_004) - rapid pulses for confirmation
    - Animation: Special effects play on activation (visual effects match special type)
    - State: Special effects applied (heal, damage, buffs, etc.), charges reset if used
    - Primary CTA updates to "Next Turn" (player proceeds when ready)
@@ -261,11 +268,12 @@ After starting the app removes pre-game CTAs and displays Decks (showing # of ca
 
 5. **Post-Win Flow - Enemy Win:**
    - Sound: Loss sound, card capture sound
+   - Haptic: Turn loss pulse (HAPTIC_003) - single medium pulse for defeat
    - Animation: Cards slide to enemy deck, damage flash on player HP bar
    - State: Damage applied to player HP, cards added to enemy deck bottom, enemy suit charges updated, enemy Warlord charge progress updated (wins), player Warlord charge progress updated (damage taken adds to charge)
    - Messaging: Status banner shows "Enemy Wins! -X Damage"
    - **Enemy Chain Check:** System checks for enemy chain triggers (suit chains and poker-style chains)
-   - **Enemy Chain Trigger:** If enemy chain threshold reached, enemy burst effect triggers automatically (visual notification, sound, effect applied)
+   - **Enemy Chain Trigger:** If enemy chain threshold reached, enemy burst effect triggers automatically (visual notification, sound, haptic: HAPTIC_005 - chain burst pattern, effect applied)
    - Enemy AI evaluates ready specials and plays 0-2 highest-scoring specials
    - **Enemy Special Notification Overlay appears briefly**
    - Overlay shows what enemy played (suit specials + warlord special if used)
@@ -278,6 +286,7 @@ After starting the app removes pre-game CTAs and displays Decks (showing # of ca
 
 6. **Turn Completion**
    - State: All turn effects resolved, decks updated, HP updated, charges maintained (Warlord Power charge updated if damage taken)
+   - **HP Critical Check:** If player HP < 25%, trigger warning (visual indicator, haptic: HAPTIC_012 - warning pattern)
    - Animation: HP bars update smoothly, deck counts refresh
    - Messaging: Status banner ready for next turn
    - Return to Pre-Turn State
@@ -1066,6 +1075,13 @@ App Exit / Background
 
 3. **Results Display Content**
    - **Win/Loss Status:** Large text ("VICTORY!" or "DEFEAT")
+   - **Haptic:** Game win pattern (HAPTIC_008) OR game loss pattern (HAPTIC_009) - celebration or defeat vibration pattern
+   - **Warlord Taunt:** One-line taunt displayed immediately after win/loss status
+     - **Victory:** Enemy Warlord's victory taunt displayed (if Enemy won) OR Player Warlord's victory taunt displayed (if Player won)
+     - **Defeat:** Enemy Warlord's defeat taunt displayed (if Enemy lost) OR Player Warlord's defeat taunt displayed (if Player lost)
+     - **Visual:** Taunt appears in speech bubble or banner near Warlord avatar
+     - **Timing:** Displays for 2-3 seconds before fading, then reward breakdown appears
+     - **Sound:** Optional brief chiptune sound effect (thematic to Warlord)
    - **XP Gained:** Total XP earned (with breakdown)
      - Turn XP: X XP
      - Completion Bonus: X XP
@@ -1100,6 +1116,7 @@ App Exit / Background
    - If XP threshold reached:
      - Trigger level-up sequence (see Level Progression Flow in XP section)
      - Level-up celebration overlay
+     - Haptic: Level up pattern (HAPTIC_007) - celebration vibration pattern
      - Unlocks displayed
      - Level-up bonus Gold awarded
      - Continue to unlock check
@@ -1402,10 +1419,62 @@ App Exit / Background
   - Unlock: "New Warlord Unlocked!" popup
   - Achievement: "Achievement Unlocked!" popup
   - Daily bonus: "Daily Bonus!" popup
+
+#### Notification Messages
+
+Notification messages appear as popups, badges, or overlays to inform players of important events and progress updates.
+
+**Notification Message Library:**
+
+| Notification ID | Type | Title | Message Text | Variables |
+|----------------|------|-------|--------------|-----------|
+| NOTIF_001 | Level-up | [PLACEHOLDER] | [PLACEHOLDER] | {level} |
+| NOTIF_002 | Enemy Warlord unlock | [PLACEHOLDER] | [PLACEHOLDER] | {warlordName} |
+| NOTIF_003 | Player Warlord unlock | [PLACEHOLDER] | [PLACEHOLDER] | {warlordName} |
+| NOTIF_004 | Achievement unlocked | [PLACEHOLDER] | [PLACEHOLDER] | {achievementName} |
+| NOTIF_005 | Daily bonus | [PLACEHOLDER] | [PLACEHOLDER] | {gold}, {xp} |
+| NOTIF_006 | Challenge complete | [PLACEHOLDER] | [PLACEHOLDER] | {challengeName} |
+| NOTIF_007 | New daily challenges | [PLACEHOLDER] | [PLACEHOLDER] | None |
+| NOTIF_008 | New weekly challenges | [PLACEHOLDER] | [PLACEHOLDER] | None |
+| NOTIF_009 | Collection milestone | [PLACEHOLDER] | [PLACEHOLDER] | {milestone} |
+| NOTIF_010 | Gauntlet unlocked | [PLACEHOLDER] | [PLACEHOLDER] | None |
+| NOTIF_011 | Wave complete | [PLACEHOLDER] | [PLACEHOLDER] | {wave} |
+| NOTIF_012 | Gauntlet run ended | [PLACEHOLDER] | [PLACEHOLDER] | {wave} |
+| NOTIF_013 | Leaderboard rank update | [PLACEHOLDER] | [PLACEHOLDER] | {rank} |
+| NOTIF_014 | First-time defeat bonus | [PLACEHOLDER] | [PLACEHOLDER] | {gold}, {xp} |
+| NOTIF_015 | Battle Item purchased | [PLACEHOLDER] | [PLACEHOLDER] | {itemName} |
+
+*Note: Notification messages should be celebratory, clear, and concise. Titles are typically 1-3 words, messages are 1 short sentence.*
 - **Status Banner:** In-game status messages
   - "You Win! +X Damage"
   - "Special Ready!"
   - "Streak: X wins!"
+
+#### Status Banner Messages
+
+Status banner messages appear in the top banner area during gameplay to inform players of game state, outcomes, and prompts.
+
+**Status Banner Message Library:**
+
+| Message ID | Context | Message Text | Variables |
+|------------|---------|--------------|-----------|
+| BANNER_001 | Pre-turn default | [PLACEHOLDER] | None |
+| BANNER_002 | Pre-turn with Battle Items | [PLACEHOLDER] | None |
+| BANNER_003 | Player turn win | [PLACEHOLDER] | {damage} |
+| BANNER_004 | Enemy turn win | [PLACEHOLDER] | {damage} |
+| BANNER_005 | War scenario triggered | [PLACEHOLDER] | None |
+| BANNER_006 | Special ready | [PLACEHOLDER] | None |
+| BANNER_007 | Streak active | [PLACEHOLDER] | {streak} |
+| BANNER_008 | Chain burst triggered | [PLACEHOLDER] | {chainType} |
+| BANNER_009 | Battle Item activated | [PLACEHOLDER] | {itemName} |
+| BANNER_010 | Enemy Battle Item activated | [PLACEHOLDER] | {itemName} |
+| BANNER_011 | Cards drawn | [PLACEHOLDER] | None |
+| BANNER_012 | Turn ready for next | [PLACEHOLDER] | None |
+| BANNER_013 | Low HP warning | [PLACEHOLDER] | {currentHP} |
+| BANNER_014 | Deck low warning | [PLACEHOLDER] | {deckSize} |
+| BANNER_015 | Gauntlet wave progress | [PLACEHOLDER] | {wave}, {battle} |
+
+*Note: Status banner messages should be concise (1 short sentence max), clear, and match the retro pixel art aesthetic.*
 
 **Progress Reminders:**
 - Pre-game screen: "X XP to next level"
@@ -1492,6 +1561,27 @@ App Exit / Background
   - Image: Collection progress screenshot
   - Link: bigfootwar.com/collection/[player-id]
 
+#### Social Sharing Text Templates
+
+Social sharing templates provide pre-formatted text for sharing game achievements and results across social platforms.
+
+**Social Sharing Template Library:**
+
+| Template ID | Share Type | Template Text | Variables |
+|-------------|------------|---------------|-----------|
+| SHARE_001 | Game victory | [PLACEHOLDER] | {enemyWarlord}, {playerWarlord} |
+| SHARE_002 | Game defeat | [PLACEHOLDER] | {enemyWarlord}, {playerWarlord} |
+| SHARE_003 | Achievement unlock | [PLACEHOLDER] | {achievementName} |
+| SHARE_004 | Collection milestone | [PLACEHOLDER] | {warlordCount} |
+| SHARE_005 | Streak achievement | [PLACEHOLDER] | {streak} |
+| SHARE_006 | Gauntlet wave | [PLACEHOLDER] | {wave} |
+| SHARE_007 | Level milestone | [PLACEHOLDER] | {level} |
+| SHARE_008 | Perfect game | [PLACEHOLDER] | {warlordName} |
+| SHARE_009 | Chain burst | [PLACEHOLDER] | {chainType} |
+| SHARE_010 | Collection complete | [PLACEHOLDER] | None |
+
+*Note: Share templates should be engaging, concise (under 100 characters), and include game branding. Use placeholders for dynamic values.*
+
 **Social Platforms:**
 - Native sharing API (Web Share API)
 - Platforms: Twitter, Facebook, Reddit, Discord, etc.
@@ -1548,6 +1638,37 @@ App Exit / Background
 - **Streak Master:** Achieve 20+ turn streak
 - **Win Master:** Win 100 games
 - **Completionist:** Unlock all achievements
+
+#### Achievement Definitions
+
+Achievements provide long-term goals and recognition for player accomplishments. Each achievement has a name, description, unlock condition, and badge/title.
+
+**Achievement Library:**
+
+| Achievement ID | Name | Description | Unlock Condition | Badge/Title |
+|----------------|------|-------------|------------------|-------------|
+| ACH_001 | [PLACEHOLDER] | [PLACEHOLDER] | Defeat 10 Warlords | [PLACEHOLDER] |
+| ACH_002 | [PLACEHOLDER] | [PLACEHOLDER] | Defeat 25 Warlords | [PLACEHOLDER] |
+| ACH_003 | [PLACEHOLDER] | [PLACEHOLDER] | Defeat 50 Warlords | [PLACEHOLDER] |
+| ACH_004 | Master Collector | [PLACEHOLDER] | Defeat all 59 Warlords | Master Collector |
+| ACH_005 | [PLACEHOLDER] | [PLACEHOLDER] | Collect 10 Battle Items | [PLACEHOLDER] |
+| ACH_006 | [PLACEHOLDER] | [PLACEHOLDER] | Collect 25 Battle Items | [PLACEHOLDER] |
+| ACH_007 | [PLACEHOLDER] | [PLACEHOLDER] | Collect 50 Battle Items | [PLACEHOLDER] |
+| ACH_008 | Item Master | [PLACEHOLDER] | Collect all 59 Battle Items | Item Master |
+| ACH_009 | Perfect Collection | [PLACEHOLDER] | Defeat all Warlords + Collect all Items | Perfect Collection |
+| ACH_010 | Level Master | [PLACEHOLDER] | Reach max level (59) | Level Master |
+| ACH_011 | [PLACEHOLDER] | [PLACEHOLDER] | Achieve 10+ turn streak | [PLACEHOLDER] |
+| ACH_012 | Streak Master | [PLACEHOLDER] | Achieve 20+ turn streak | Streak Master |
+| ACH_013 | [PLACEHOLDER] | [PLACEHOLDER] | Win 50 games | [PLACEHOLDER] |
+| ACH_014 | Win Master | [PLACEHOLDER] | Win 100 games | Win Master |
+| ACH_015 | Completionist | [PLACEHOLDER] | Unlock all achievements | Completionist |
+| ACH_016 | [PLACEHOLDER] | [PLACEHOLDER] | Complete Wave 10 (Gauntlet) | [PLACEHOLDER] |
+| ACH_017 | [PLACEHOLDER] | [PLACEHOLDER] | Complete Wave 25 (Gauntlet) | [PLACEHOLDER] |
+| ACH_018 | [PLACEHOLDER] | [PLACEHOLDER] | Complete Wave 50 (Gauntlet) | [PLACEHOLDER] |
+| ACH_019 | [PLACEHOLDER] | [PLACEHOLDER] | Complete Wave 100 (Gauntlet) | [PLACEHOLDER] |
+| ACH_020 | [PLACEHOLDER] | [PLACEHOLDER] | Achieve 50+ Gauntlet streak | [PLACEHOLDER] |
+
+*Note: Achievement names should be memorable and thematic. Descriptions should explain what the achievement recognizes. Badge/title names are used for display and sharing.*
 
 **Collection Percentage Display:**
 - Pre-game: "Collection: X% Complete" (top of screen, subtle)
@@ -1638,6 +1759,27 @@ Endless Gauntlet Mode is an infinite challenge mode that unlocks after defeating
 - **Gauntlet Streak:** Separate streak counter for Gauntlet mode (persists across battles)
 - **Streak Bonus:** +5% Gold/XP per consecutive win (stacks with turn streak multipliers)
 - **Streak Reset:** Resets to 0 on any battle loss
+
+#### Gauntlet Mode Messages
+
+Gauntlet Mode requires specific messages for wave completion, milestones, and run end states.
+
+**Gauntlet Mode Message Library:**
+
+| Message ID | Context | Message Text | Variables |
+|------------|---------|--------------|-----------|
+| GAUNTLET_001 | Wave complete | [PLACEHOLDER] | {wave} |
+| GAUNTLET_002 | Milestone wave (5, 10, 25, etc.) | [PLACEHOLDER] | {wave} |
+| GAUNTLET_003 | Run ended (loss) | [PLACEHOLDER] | {wave} |
+| GAUNTLET_004 | Final wave reached | [PLACEHOLDER] | {wave} |
+| GAUNTLET_005 | Difficulty indicator | [PLACEHOLDER] | {difficulty} |
+| GAUNTLET_006 | Best wave display | [PLACEHOLDER] | {bestWave} |
+| GAUNTLET_007 | Wave progress | [PLACEHOLDER] | {wave}, {battle} |
+| GAUNTLET_008 | Streak display | [PLACEHOLDER] | {streak} |
+| GAUNTLET_009 | Resume prompt | [PLACEHOLDER] | {wave}, {battle} |
+| GAUNTLET_010 | Unlock celebration | [PLACEHOLDER] | None |
+
+*Note: Gauntlet messages should be celebratory for achievements, informative for progress, and clear for state changes.*
 
 **Loss Conditions:**
 - **Battle Loss:** Losing any battle ends the Gauntlet run
@@ -1984,6 +2126,15 @@ The Game Menu provides centralized access to game features, settings, statistics
 - Persistence: Saved to localStorage
 - Scope: Controls both sound effects and music volume
 - Behavior: Real-time adjustment, immediate feedback
+
+**Haptic Feedback:**
+- Toggle: Enable/disable haptic feedback (vibration)
+- Default: Enabled on mobile devices, disabled on desktop
+- Persistence: Saved to localStorage
+- Scope: Vibration patterns for gameplay events (card flips, turn outcomes, chain bursts, etc.)
+- Behavior: When disabled, no vibration feedback (visual/audio feedback still provided)
+- Platform Detection: Auto-detects mobile vs desktop, suggests enabling on desktop if supported
+- Description: "Vibration feedback for gameplay events"
 
 **Notification Settings:**
 
@@ -2599,6 +2750,18 @@ interface GameState {
   gameEndTime: number | null; // Timestamp, null if game ongoing
 }
 
+interface WarlordData {
+  warlordId: number; // From roster table
+  name: string;
+  level: number;
+  maxHP: number;
+  baseDamage: number;
+  chargeThreshold: number;
+  victoryTaunt: string; // One-line taunt on victory
+  defeatTaunt: string; // One-line taunt on defeat
+  // ... other static roster data (specials, AI strategy, etc.)
+}
+
 interface WarlordState {
   warlordId: number; // From roster table
   currentHP: number;
@@ -2783,6 +2946,11 @@ interface PostGameState {
   finalHP: {
     player: number;
     enemy: number;
+  };
+  taunt: {
+    warlordId: number; // Warlord who delivered the taunt
+    text: string; // Taunt text (victory or defeat taunt)
+    type: 'victory' | 'defeat';
   };
   rewards: {
     xp: RewardBreakdown;
@@ -3719,6 +3887,160 @@ Bigfoot Warlords Roster
 | 58 | Primordial Terror | 58 | 107 | 5 | 3 | Chaos Mutate (Random extreme buff/debuff) | Terror Heal 25 | Mutation Curse (Random enemy debuff) | Tentacle Lash (+30 dmg) | Chaos Blast (rank*6) | 6 | 5 | 4 | 6 | Chaos Egg (Random power/game) | Chaos (Random Effect) | Ultimate RNG Clubs |
 | 59 | The Bigfoot King | 59 | 120 | 5 | 3 | Royal Decree (Win game instantly on use) | Kingly Heal 30 | Treasury (+5000 Gold) | Imperial Smite (+50 dmg) | Crown Bolt (rank*10) | 5 | 5 | 5 | 5 | King's Scepter (All previous powers 1/use) | Decree (Win Turn + Max Charges) | Final boss omniscient, all suits max |
 
+#### Warlord Taunts and Personality
+
+Each Warlord has unique one-line taunts that display on victory and defeat, adding personality and flavor to the game without bloating the design. Taunts appear in the Post-Game results screen, providing memorable moments that reinforce each Warlord's character.
+
+**Taunt Display Rules:**
+- **Victory Taunt:** Displayed when the Warlord wins a battle (as Enemy Warlord) or when Player Warlord wins
+- **Defeat Taunt:** Displayed when the Warlord loses a battle (as Enemy Warlord) or when Player Warlord loses
+- **Timing:** Taunts appear immediately after the "VICTORY!" or "DEFEAT!" status message, before reward breakdowns
+- **Format:** Single line of text, displayed in pixel font matching the game's aesthetic
+- **Visual:** Taunt appears in a speech bubble or banner above/below the Warlord avatar
+- **Sound:** Optional brief chiptune sound effect (thematic to Warlord personality)
+
+**Taunt Content Guidelines:**
+- **Length:** Maximum 60 characters (ensures readability on mobile)
+- **Tone:** Matches Warlord's theme and personality (e.g., Skunk Ape = smelly/gross, Jersey Devil = demonic, Yeti = cold/icy)
+- **Variety:** Each Warlord has unique taunts (no duplicates)
+- **Appropriateness:** Family-friendly, cryptid-themed humor
+
+**Warlord Taunts Table:**
+
+| # | Warlord | Victory Taunt | Defeat Taunt |
+|---|---------|---------------|--------------|
+| 1 | Sasquatch | [PLACEHOLDER] | [PLACEHOLDER] |
+| 2 | Skunk Ape | [PLACEHOLDER] | [PLACEHOLDER] |
+| 3 | Wendigo | [PLACEHOLDER] | [PLACEHOLDER] |
+| 4 | Jersey Devil | [PLACEHOLDER] | [PLACEHOLDER] |
+| 5 | Grassman | [PLACEHOLDER] | [PLACEHOLDER] |
+| 6 | Fouke Monster | [PLACEHOLDER] | [PLACEHOLDER] |
+| 7 | Mogollon Monster | [PLACEHOLDER] | [PLACEHOLDER] |
+| 8 | Honey Island Swamp Monster | [PLACEHOLDER] | [PLACEHOLDER] |
+| 9 | Pope Lick Monster | [PLACEHOLDER] | [PLACEHOLDER] |
+| 10 | Thunderbird | [PLACEHOLDER] | [PLACEHOLDER] |
+| 11 | Yeti | [PLACEHOLDER] | [PLACEHOLDER] |
+| 12 | Almas | [PLACEHOLDER] | [PLACEHOLDER] |
+| 13 | Yeren | [PLACEHOLDER] | [PLACEHOLDER] |
+| 14 | Barmanou | [PLACEHOLDER] | [PLACEHOLDER] |
+| 15 | Chuchunya | [PLACEHOLDER] | [PLACEHOLDER] |
+| 16 | Xueren | [PLACEHOLDER] | [PLACEHOLDER] |
+| 17 | Migoi | [PLACEHOLDER] | [PLACEHOLDER] |
+| 18 | Kikomba | [PLACEHOLDER] | [PLACEHOLDER] |
+| 19 | Yowie | [PLACEHOLDER] | [PLACEHOLDER] |
+| 20 | Moehau | [PLACEHOLDER] | [PLACEHOLDER] |
+| 21 | Hibagon | [PLACEHOLDER] | [PLACEHOLDER] |
+| 22 | Orang Pendek | [PLACEHOLDER] | [PLACEHOLDER] |
+| 23 | Batutut | [PLACEHOLDER] | [PLACEHOLDER] |
+| 24 | Agogwe | [PLACEHOLDER] | [PLACEHOLDER] |
+| 25 | Maricoxi | [PLACEHOLDER] | [PLACEHOLDER] |
+| 26 | Sisimito | [PLACEHOLDER] | [PLACEHOLDER] |
+| 27 | Mapinguari | [PLACEHOLDER] | [PLACEHOLDER] |
+| 28 | Mono Grande | [PLACEHOLDER] | [PLACEHOLDER] |
+| 29 | Ucumar | [PLACEHOLDER] | [PLACEHOLDER] |
+| 30 | Arulataq | [PLACEHOLDER] | [PLACEHOLDER] |
+| 31 | Woodwose | [PLACEHOLDER] | [PLACEHOLDER] |
+| 32 | Basajaun | [PLACEHOLDER] | [PLACEHOLDER] |
+| 33 | Salvanel | [PLACEHOLDER] | [PLACEHOLDER] |
+| 34 | Almasti | [PLACEHOLDER] | [PLACEHOLDER] |
+| 35 | Kapre | [PLACEHOLDER] | [PLACEHOLDER] |
+| 36 | Fear Liath | [PLACEHOLDER] | [PLACEHOLDER] |
+| 37 | Brenin Llwyd | [PLACEHOLDER] | [PLACEHOLDER] |
+| 38 | Leshy | [PLACEHOLDER] | [PLACEHOLDER] |
+| 39 | Troll | [PLACEHOLDER] | [PLACEHOLDER] |
+| 40 | Wildman | [PLACEHOLDER] | [PLACEHOLDER] |
+| 41 | Ancient Gigantopithecus | [PLACEHOLDER] | [PLACEHOLDER] |
+| 42 | Quantum Sasquatch | [PLACEHOLDER] | [PLACEHOLDER] |
+| 43 | Enkidu | [PLACEHOLDER] | [PLACEHOLDER] |
+| 44 | Skinwalker | [PLACEHOLDER] | [PLACEHOLDER] |
+| 45 | Kushtaka | [PLACEHOLDER] | [PLACEHOLDER] |
+| 46 | Genoskwa | [PLACEHOLDER] | [PLACEHOLDER] |
+| 47 | Stick Indians | [PLACEHOLDER] | [PLACEHOLDER] |
+| 48 | Rugaru | [PLACEHOLDER] | [PLACEHOLDER] |
+| 49 | Batsquatch | [PLACEHOLDER] | [PLACEHOLDER] |
+| 50 | Mechanical Bigfoot | [PLACEHOLDER] | [PLACEHOLDER] |
+| 51 | The Primal One | [PLACEHOLDER] | [PLACEHOLDER] |
+| 52 | Interdimensional Sasquatch | [PLACEHOLDER] | [PLACEHOLDER] |
+| 53 | The First Walker | [PLACEHOLDER] | [PLACEHOLDER] |
+| 54 | Cosmic Yeti | [PLACEHOLDER] | [PLACEHOLDER] |
+| 55 | Shadow Squatch | [PLACEHOLDER] | [PLACEHOLDER] |
+| 56 | Golden Sasquatch | [PLACEHOLDER] | [PLACEHOLDER] |
+| 57 | The Collective | [PLACEHOLDER] | [PLACEHOLDER] |
+| 58 | Primordial Terror | [PLACEHOLDER] | [PLACEHOLDER] |
+| 59 | The Bigfoot King | [PLACEHOLDER] | [PLACEHOLDER] |
+
+*Note: Taunt content will be filled in during content creation phase. Each taunt should reflect the Warlord's theme, personality, and cryptid lore.*
+
+#### Warlord Descriptions
+
+Each Warlord has brief and full descriptions used in unlock previews and details overlays. Descriptions provide cryptid lore, personality traits, and combat style hints.
+
+**Warlord Description Library:**
+
+| # | Warlord | Brief Description (1-2 sentences) | Full Description (2-3 sentences) |
+|---|---------|-----------------------------------|----------------------------------|
+| 1 | Sasquatch | [PLACEHOLDER] | [PLACEHOLDER] |
+| 2 | Skunk Ape | [PLACEHOLDER] | [PLACEHOLDER] |
+| 3 | Wendigo | [PLACEHOLDER] | [PLACEHOLDER] |
+| 4 | Jersey Devil | [PLACEHOLDER] | [PLACEHOLDER] |
+| 5 | Grassman | [PLACEHOLDER] | [PLACEHOLDER] |
+| 6 | Fouke Monster | [PLACEHOLDER] | [PLACEHOLDER] |
+| 7 | Mogollon Monster | [PLACEHOLDER] | [PLACEHOLDER] |
+| 8 | Honey Island Swamp Monster | [PLACEHOLDER] | [PLACEHOLDER] |
+| 9 | Pope Lick Monster | [PLACEHOLDER] | [PLACEHOLDER] |
+| 10 | Thunderbird | [PLACEHOLDER] | [PLACEHOLDER] |
+| 11 | Yeti | [PLACEHOLDER] | [PLACEHOLDER] |
+| 12 | Almas | [PLACEHOLDER] | [PLACEHOLDER] |
+| 13 | Yeren | [PLACEHOLDER] | [PLACEHOLDER] |
+| 14 | Barmanou | [PLACEHOLDER] | [PLACEHOLDER] |
+| 15 | Chuchunya | [PLACEHOLDER] | [PLACEHOLDER] |
+| 16 | Xueren | [PLACEHOLDER] | [PLACEHOLDER] |
+| 17 | Migoi | [PLACEHOLDER] | [PLACEHOLDER] |
+| 18 | Kikomba | [PLACEHOLDER] | [PLACEHOLDER] |
+| 19 | Yowie | [PLACEHOLDER] | [PLACEHOLDER] |
+| 20 | Moehau | [PLACEHOLDER] | [PLACEHOLDER] |
+| 21 | Hibagon | [PLACEHOLDER] | [PLACEHOLDER] |
+| 22 | Orang Pendek | [PLACEHOLDER] | [PLACEHOLDER] |
+| 23 | Batutut | [PLACEHOLDER] | [PLACEHOLDER] |
+| 24 | Agogwe | [PLACEHOLDER] | [PLACEHOLDER] |
+| 25 | Maricoxi | [PLACEHOLDER] | [PLACEHOLDER] |
+| 26 | Sisimito | [PLACEHOLDER] | [PLACEHOLDER] |
+| 27 | Mapinguari | [PLACEHOLDER] | [PLACEHOLDER] |
+| 28 | Mono Grande | [PLACEHOLDER] | [PLACEHOLDER] |
+| 29 | Ucumar | [PLACEHOLDER] | [PLACEHOLDER] |
+| 30 | Arulataq | [PLACEHOLDER] | [PLACEHOLDER] |
+| 31 | Woodwose | [PLACEHOLDER] | [PLACEHOLDER] |
+| 32 | Basajaun | [PLACEHOLDER] | [PLACEHOLDER] |
+| 33 | Salvanel | [PLACEHOLDER] | [PLACEHOLDER] |
+| 34 | Almasti | [PLACEHOLDER] | [PLACEHOLDER] |
+| 35 | Kapre | [PLACEHOLDER] | [PLACEHOLDER] |
+| 36 | Fear Liath | [PLACEHOLDER] | [PLACEHOLDER] |
+| 37 | Brenin Llwyd | [PLACEHOLDER] | [PLACEHOLDER] |
+| 38 | Leshy | [PLACEHOLDER] | [PLACEHOLDER] |
+| 39 | Troll | [PLACEHOLDER] | [PLACEHOLDER] |
+| 40 | Wildman | [PLACEHOLDER] | [PLACEHOLDER] |
+| 41 | Ancient Gigantopithecus | [PLACEHOLDER] | [PLACEHOLDER] |
+| 42 | Quantum Sasquatch | [PLACEHOLDER] | [PLACEHOLDER] |
+| 43 | Enkidu | [PLACEHOLDER] | [PLACEHOLDER] |
+| 44 | Skinwalker | [PLACEHOLDER] | [PLACEHOLDER] |
+| 45 | Kushtaka | [PLACEHOLDER] | [PLACEHOLDER] |
+| 46 | Genoskwa | [PLACEHOLDER] | [PLACEHOLDER] |
+| 47 | Stick Indians | [PLACEHOLDER] | [PLACEHOLDER] |
+| 48 | Rugaru | [PLACEHOLDER] | [PLACEHOLDER] |
+| 49 | Batsquatch | [PLACEHOLDER] | [PLACEHOLDER] |
+| 50 | Mechanical Bigfoot | [PLACEHOLDER] | [PLACEHOLDER] |
+| 51 | The Primal One | [PLACEHOLDER] | [PLACEHOLDER] |
+| 52 | Interdimensional Sasquatch | [PLACEHOLDER] | [PLACEHOLDER] |
+| 53 | The First Walker | [PLACEHOLDER] | [PLACEHOLDER] |
+| 54 | Cosmic Yeti | [PLACEHOLDER] | [PLACEHOLDER] |
+| 55 | Shadow Squatch | [PLACEHOLDER] | [PLACEHOLDER] |
+| 56 | Golden Sasquatch | [PLACEHOLDER] | [PLACEHOLDER] |
+| 57 | The Collective | [PLACEHOLDER] | [PLACEHOLDER] |
+| 58 | Primordial Terror | [PLACEHOLDER] | [PLACEHOLDER] |
+| 59 | The Bigfoot King | [PLACEHOLDER] | [PLACEHOLDER] |
+
+*Note: Brief descriptions are used in unlock previews (1-2 sentences). Full descriptions are used in Warlord details overlays (2-3 sentences). Both should reflect cryptid lore, personality, and combat style.*
+
 **Threshold Assignment Logic Recap**:
 - **Base**: Lv1-10:2, 11-25:3, 26-40:4, 41+:5 (reduced by 1 from previous values for 36-card deck rebalance)
 - **Primary Suit** (per AI/theme): base-1 (min 1-2 for playability)
@@ -3799,6 +4121,76 @@ Battle Items influence the upcoming card draw in various ways:
 - Charge system (1-3 charges per game) encourages strategic use without fear of wasting investment
 - Recharge after each game ensures items remain useful throughout progression
 - Gold investment unlocks item permanently; charges provide ongoing value
+
+#### Battle Item Content Library
+
+Battle Items require names and descriptions for UI display. This library provides comprehensive content for all 59 Battle Items.
+
+**Battle Item Content Library:**
+
+| Item ID | Level | Name | Description | Effect Description | Flavor Text |
+|---------|-------|------|-------------|-------------------|-------------|
+| ITEM_001 | 1 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_002 | 2 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_003 | 3 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_004 | 4 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_005 | 5 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_006 | 6 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_007 | 7 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_008 | 8 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_009 | 9 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_010 | 10 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_011 | 11 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_012 | 12 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_013 | 13 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_014 | 14 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_015 | 15 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_016 | 16 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_017 | 17 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_018 | 18 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_019 | 19 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_020 | 20 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_021 | 21 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_022 | 22 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_023 | 23 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_024 | 24 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_025 | 25 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_026 | 26 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_027 | 27 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_028 | 28 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_029 | 29 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_030 | 30 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_031 | 31 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_032 | 32 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_033 | 33 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_034 | 34 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_035 | 35 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_036 | 36 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_037 | 37 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_038 | 38 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_039 | 39 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_040 | 40 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_041 | 41 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_042 | 42 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_043 | 43 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_044 | 44 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_045 | 45 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_046 | 46 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_047 | 47 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_048 | 48 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_049 | 49 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_050 | 50 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_051 | 51 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_052 | 52 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_053 | 53 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_054 | 54 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_055 | 55 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_056 | 56 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_057 | 57 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_058 | 58 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| ITEM_059 | 59 | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+
+*Note: Battle Item names should be thematic and memorable. Descriptions explain what the item does. Effect descriptions detail the mechanics. Flavor text adds personality (optional).*
 
 *For UI specifications, see: `## UI and UX` → `### Battle Item Selection Overlay`*  
 *For asset requirements, see: `## Content and Assets` → `### Battle Items`*
@@ -4014,6 +4406,23 @@ Charms modify the `ChainSystem` logic in three primary ways:
 | **Black Ribbon** | 400g | 1 Trigger | Spades & Clubs (Black) count as the same suit for chains. Breaks after 1 Chain Trigger. | **Reset Rule** (Color Bridging) |
 | **Anchor Stone** | 300g | 1 Use | Prevents a Suit Chain from resetting on a suit change. | **Reset Rule** (Safety Net) |
 | **Echo Shell** | 600g | 3 Uses | Your last triggered Chain "echoes", counting as the start (level 1) of your next chain immediately. | **Momentum** (Kickstarter) |
+
+#### Charm Content Library
+
+Charms require full descriptions for UI display. This library provides comprehensive content for all initial Charms.
+
+**Charm Content Library:**
+
+| Charm ID | Name | Full Description | Effect Description | Flavor Text |
+|----------|------|------------------|-------------------|-------------|
+| CHARM_001 | Fool's Gold | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| CHARM_002 | Timekeeper's Eye | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| CHARM_003 | Red Ribbon | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| CHARM_004 | Black Ribbon | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| CHARM_005 | Anchor Stone | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+| CHARM_006 | Echo Shell | [PLACEHOLDER] | [PLACEHOLDER] | [PLACEHOLDER] |
+
+*Note: Full descriptions explain what the Charm does. Effect descriptions detail the mechanics. Flavor text adds personality and thematic context.*
 
 #### Data Structure
 
@@ -5067,6 +5476,45 @@ Challenges are organized into categories based on their objective type:
   - "Use 20 specials - Progress: 12/20"
   - "Earn 1,000 Gold - Progress: 650/1,000"
 
+#### Challenge Content Library
+
+Challenges require names and descriptions for UI display. This library provides comprehensive challenge content across all challenge types.
+
+**Challenge Content Library:**
+
+| Challenge ID | Type | Name | Description | Objective Text | Progress Display Format |
+|--------------|------|------|-------------|----------------|------------------------|
+| CHAL_DAILY_001 | Daily | [PLACEHOLDER] | [PLACEHOLDER] | Win 5 turns in a row | Win {current}/5 turns |
+| CHAL_DAILY_002 | Daily | [PLACEHOLDER] | [PLACEHOLDER] | Defeat 1 Warlord | Defeat {current}/1 Warlord |
+| CHAL_DAILY_003 | Daily | [PLACEHOLDER] | [PLACEHOLDER] | Use 3 specials | Use {current}/3 specials |
+| CHAL_DAILY_004 | Daily | [PLACEHOLDER] | [PLACEHOLDER] | Earn 200 Gold | Earn {current}/200 Gold |
+| CHAL_DAILY_005 | Daily | [PLACEHOLDER] | [PLACEHOLDER] | Win 1 game | Win {current}/1 game |
+| CHAL_WEEKLY_001 | Weekly | [PLACEHOLDER] | [PLACEHOLDER] | Win 20 turns in a row | Win {current}/20 turns |
+| CHAL_WEEKLY_002 | Weekly | [PLACEHOLDER] | [PLACEHOLDER] | Defeat 5 different Warlords | Defeat {current}/5 Warlords |
+| CHAL_WEEKLY_003 | Weekly | [PLACEHOLDER] | [PLACEHOLDER] | Use 20 specials | Use {current}/20 specials |
+| CHAL_WEEKLY_004 | Weekly | [PLACEHOLDER] | [PLACEHOLDER] | Earn 1,000 Gold | Earn {current}/1,000 Gold |
+| CHAL_WEEKLY_005 | Weekly | [PLACEHOLDER] | [PLACEHOLDER] | Reach Level 5 | Reach Level {current}/5 |
+| CHAL_ACH_001 | Achievement | [PLACEHOLDER] | [PLACEHOLDER] | Win your first game | Win {current}/1 game |
+| CHAL_ACH_002 | Achievement | [PLACEHOLDER] | [PLACEHOLDER] | Reach Level 10 | Reach Level {current}/10 |
+| CHAL_ACH_003 | Achievement | [PLACEHOLDER] | [PLACEHOLDER] | Defeat 10 Warlords | Defeat {current}/10 Warlords |
+| CHAL_ACH_004 | Achievement | [PLACEHOLDER] | [PLACEHOLDER] | Use 100 specials | Use {current}/100 specials |
+| CHAL_ACH_005 | Achievement | [PLACEHOLDER] | [PLACEHOLDER] | Earn 10,000 Gold | Earn {current}/10,000 Gold |
+| CHAL_ACH_006 | Achievement | [PLACEHOLDER] | [PLACEHOLDER] | Complete collection (59 Warlords) | Defeat {current}/59 Warlords |
+| CHAL_MILESTONE_001 | Milestone | [PLACEHOLDER] | [PLACEHOLDER] | Reach Level 5 | Reach Level {current}/5 |
+| CHAL_MILESTONE_002 | Milestone | [PLACEHOLDER] | [PLACEHOLDER] | Reach Level 10 | Reach Level {current}/10 |
+| CHAL_MILESTONE_003 | Milestone | [PLACEHOLDER] | [PLACEHOLDER] | Reach Level 20 | Reach Level {current}/20 |
+| CHAL_MILESTONE_004 | Milestone | [PLACEHOLDER] | [PLACEHOLDER] | Reach Level 30 | Reach Level {current}/30 |
+| CHAL_MILESTONE_005 | Milestone | [PLACEHOLDER] | [PLACEHOLDER] | Reach Level 40 | Reach Level {current}/40 |
+| CHAL_MILESTONE_006 | Milestone | [PLACEHOLDER] | [PLACEHOLDER] | Reach Level 50 | Reach Level {current}/50 |
+| CHAL_MILESTONE_007 | Milestone | [PLACEHOLDER] | [PLACEHOLDER] | Reach Level 59 (Max) | Reach Level {current}/59 |
+| CHAL_COLLECT_001 | Collection | [PLACEHOLDER] | [PLACEHOLDER] | Defeat 5 Warlords | Defeat {current}/5 Warlords |
+| CHAL_COLLECT_002 | Collection | [PLACEHOLDER] | [PLACEHOLDER] | Defeat 10 Warlords | Defeat {current}/10 Warlords |
+| CHAL_COLLECT_003 | Collection | [PLACEHOLDER] | [PLACEHOLDER] | Defeat 25 Warlords | Defeat {current}/25 Warlords |
+| CHAL_COLLECT_004 | Collection | [PLACEHOLDER] | [PLACEHOLDER] | Defeat 50 Warlords | Defeat {current}/50 Warlords |
+| CHAL_COLLECT_005 | Collection | [PLACEHOLDER] | [PLACEHOLDER] | Defeat all 59 Warlords | Defeat {current}/59 Warlords |
+
+*Note: Challenge names should be engaging and thematic. Descriptions explain the challenge objective. Objective text is used in progress displays. Additional challenge variations can be added to this library as needed.*
+
 **Progress Updates:**
 - Real-time: Progress updates immediately when objective progress occurs
 - Visual: Progress bar animates, number increments
@@ -5651,6 +6099,73 @@ The Post-game screen displays after a game concludes (win or loss), showing resu
 - Primary CTA: Bottom-center (300x60px)
 - Secondary CTAs: Horizontal row above primary (200x48px each)
 - Tertiary CTAs: Smaller buttons, bottom-left/right
+
+#### UI Button Labels
+
+All UI buttons and CTAs require consistent labeling. This library provides standardized button text across the game.
+
+**UI Button Label Library:**
+
+| Button ID | Context | Button Text | Category |
+|-----------|---------|-------------|----------|
+| BTN_001 | Primary play | [PLACEHOLDER] | Primary CTA |
+| BTN_002 | Play again | [PLACEHOLDER] | Secondary CTA |
+| BTN_003 | Continue | [PLACEHOLDER] | Primary CTA |
+| BTN_004 | Select Enemy Warlord | [PLACEHOLDER] | Secondary CTA |
+| BTN_005 | Select Player Warlord | [PLACEHOLDER] | Secondary CTA |
+| BTN_006 | View Progress | [PLACEHOLDER] | Tertiary CTA |
+| BTN_007 | View Challenges | [PLACEHOLDER] | Tertiary CTA |
+| BTN_008 | View Leaderboards | [PLACEHOLDER] | Tertiary CTA |
+| BTN_009 | Share Result | [PLACEHOLDER] | Tertiary CTA |
+| BTN_010 | Menu | [PLACEHOLDER] | Tertiary CTA |
+| BTN_011 | Continue Gauntlet | [PLACEHOLDER] | Primary CTA (Gauntlet) |
+| BTN_012 | Restart Gauntlet | [PLACEHOLDER] | Primary CTA (Gauntlet) |
+| BTN_013 | Exit Gauntlet | [PLACEHOLDER] | Secondary CTA (Gauntlet) |
+| BTN_014 | Change Warlord | [PLACEHOLDER] | Secondary CTA (Gauntlet) |
+| BTN_015 | Purchase Gold | [PLACEHOLDER] | Tertiary CTA |
+| BTN_016 | Watch Ad for Gold | [PLACEHOLDER] | Tertiary CTA |
+| BTN_017 | Upgrade to PAID | [PLACEHOLDER] | Tertiary CTA |
+| BTN_018 | Cancel | [PLACEHOLDER] | Secondary CTA |
+| BTN_019 | Confirm | [PLACEHOLDER] | Secondary CTA |
+| BTN_020 | Try This Warlord? | [PLACEHOLDER] | Prompt CTA |
+| BTN_021 | Close | [PLACEHOLDER] | Tertiary CTA |
+| BTN_022 | Back | [PLACEHOLDER] | Tertiary CTA |
+| BTN_023 | Next | [PLACEHOLDER] | Secondary CTA |
+| BTN_024 | Purchase | [PLACEHOLDER] | Secondary CTA |
+| BTN_025 | Equip | [PLACEHOLDER] | Secondary CTA |
+| BTN_026 | Use Battle Item | [PLACEHOLDER] | Secondary CTA |
+| BTN_027 | Activate Special | [PLACEHOLDER] | Secondary CTA |
+| BTN_028 | Skip | [PLACEHOLDER] | Tertiary CTA |
+| BTN_029 | Retry | [PLACEHOLDER] | Secondary CTA |
+| BTN_030 | Exit | [PLACEHOLDER] | Tertiary CTA |
+
+*Note: Button labels should be concise (1-3 words), action-oriented, and consistent across the game. Primary CTAs are most prominent, secondary CTAs are medium prominence, tertiary CTAs are subtle.*
+
+#### Error and Warning Messages
+
+Error and warning messages inform players of issues, restrictions, or required actions. Messages should be clear, helpful, and non-punishing.
+
+**Error and Warning Message Library:**
+
+| Message ID | Context | Message Text | Variables |
+|------------|---------|--------------|-----------|
+| ERR_001 | Insufficient Gold | [PLACEHOLDER] | {required}, {current} |
+| ERR_002 | Low Gold warning | [PLACEHOLDER] | {current} |
+| ERR_003 | Locked Warlord | [PLACEHOLDER] | {warlordName}, {requirement} |
+| ERR_004 | Locked Battle Item | [PLACEHOLDER] | {itemName}, {requirement} |
+| ERR_005 | Locked Charm | [PLACEHOLDER] | {charmName}, {requirement} |
+| ERR_006 | Progress not saved | [PLACEHOLDER] | None |
+| ERR_007 | Network error | [PLACEHOLDER] | None |
+| ERR_008 | Save error | [PLACEHOLDER] | None |
+| ERR_009 | Cannot exit during Gauntlet | [PLACEHOLDER] | None |
+| ERR_010 | Invalid action | [PLACEHOLDER] | {action} |
+| ERR_011 | Game fee required | [PLACEHOLDER] | {fee} |
+| ERR_012 | Item already owned | [PLACEHOLDER] | {itemName} |
+| ERR_013 | No charges remaining | [PLACEHOLDER] | {itemName} |
+| ERR_014 | Confirmation required | [PLACEHOLDER] | {action} |
+| ERR_015 | Feature locked | [PLACEHOLDER] | {feature}, {requirement} |
+
+*Note: Error messages should be helpful and guide players toward solutions. Warning messages should inform without being alarming. All messages should use clear, simple language.*
 
 #### Challenge Progress Updates
 
@@ -7114,6 +7629,170 @@ The game uses Web Audio API for audio control. Howler.js provides cross-browser 
 - Battery-efficient: Minimal simultaneous sounds
 - Network-efficient: Lazy loading of non-critical sounds
 
+## Haptic Feedback
+
+Haptic feedback provides tactile confirmation for gameplay events, enhancing immersion and providing additional feedback channels. The system uses the Web Vibration API with pattern-based feedback for high-impact moments.
+
+### Haptic Feedback System Overview
+
+**Purpose:**
+- Provide tactile confirmation for key gameplay events
+- Enhance mobile gaming experience with physical feedback
+- Add polish and modern feel to the game
+- Support accessibility with multi-modal feedback
+
+**Technical Implementation:**
+- **API**: W3C Vibration API (`navigator.vibrate()`)
+- **Browser Support**: 
+  - ✅ Chrome/Edge (Android, Desktop): Full support
+  - ✅ Firefox (Android, Desktop): Full support
+  - ⚠️ Safari iOS: Limited support (requires user gesture, iOS 9+)
+  - ❌ Safari Desktop: No support
+- **Mobile Coverage**: ~85-90% of mobile users
+- **Implementation Complexity**: Low (simple API call, graceful degradation)
+
+**Progressive Enhancement:**
+- Feature detection: Checks for API support before use
+- Graceful degradation: Game functions normally if haptics unavailable
+- User control: Settings toggle for enable/disable
+- Performance: Minimal impact (async, non-blocking)
+
+### Haptic Pattern Library
+
+Haptic feedback uses pattern-based vibration sequences. Patterns are arrays of milliseconds (vibration duration, pause duration, vibration duration, etc.).
+
+**Pattern Definitions:**
+
+| Pattern ID | Event | Pattern (ms) | Description |
+|------------|-------|--------------|-------------|
+| HAPTIC_001 | Card Flip | [50] | Single short pulse when cards are revealed |
+| HAPTIC_002 | Turn Win | [50, 50, 50] | Triple pulse for turn victory |
+| HAPTIC_003 | Turn Loss | [100] | Single medium pulse for turn loss |
+| HAPTIC_004 | Special Activate | [30, 30, 30, 30] | Rapid pulses for special activation |
+| HAPTIC_005 | Chain Burst | [50, 100, 50, 100, 50] | Alternating pattern for chain triggers |
+| HAPTIC_006 | Signature Card | [100, 50, 100, 50, 100] | Epic pattern for signature card reveal |
+| HAPTIC_007 | Level Up | [200, 100, 200] | Celebration pattern for level advancement |
+| HAPTIC_008 | Game Win | [100, 50, 100, 50, 100, 50, 100] | Victory pattern for game completion |
+| HAPTIC_009 | Game Loss | [300] | Long pulse for game defeat |
+| HAPTIC_010 | Joker Shuffle | [50, 50, 50, 50, 50] | Distinct pattern for shuffle moment |
+| HAPTIC_011 | Battle Item Activate | [40, 40, 40] | Confirmation pulses for item activation |
+| HAPTIC_012 | HP Critical | [100, 100] | Warning pattern when HP < 25% |
+| HAPTIC_013 | Streak Milestone | [50, 50, 50, 50] | Milestone pattern at 3, 5, 10+ streak |
+| HAPTIC_014 | Charge Ready | [30] | Subtle pulse when special becomes ready |
+
+### Haptic Integration Points
+
+**High-Impact Moments (Always Haptic):**
+1. **Card Flip**: Subtle pulse when cards are revealed (HAPTIC_001)
+2. **Turn Win**: Distinct pattern for player victory (HAPTIC_002)
+3. **Turn Loss**: Distinct pattern for player loss (HAPTIC_003)
+4. **Special Activation**: Confirmation pulse when special is used (HAPTIC_004)
+5. **Chain Burst**: Epic pattern for chain triggers (HAPTIC_005)
+6. **Signature Card**: Unique pattern for signature card reveal (HAPTIC_006)
+7. **Game Win**: Celebration pattern for game victory (HAPTIC_008)
+8. **Game Loss**: Defeat pattern for game loss (HAPTIC_009)
+9. **Level Up**: Celebration pattern for level advancement (HAPTIC_007)
+10. **Joker Shuffle**: Distinct pattern for shuffle moment (HAPTIC_010)
+
+**Medium-Impact Moments (Optional):**
+1. **Battle Item Activation**: Confirmation pulse (HAPTIC_011)
+2. **HP Critical**: Warning pulse when HP < 25% (HAPTIC_012)
+3. **Streak Milestone**: Pulse at 3, 5, 10+ streak (HAPTIC_013)
+4. **Charge Ready**: Subtle pulse when special becomes ready (HAPTIC_014)
+
+**Low-Impact Moments (Skip):**
+- Menu navigation (too frequent)
+- Button taps (standard UI interactions)
+- Overlay opens/closes (not gameplay-critical)
+
+### User Controls
+
+**Settings Integration:**
+- **Toggle**: Enable/Disable haptic feedback (Game Menu → Settings)
+- **Default**: Enabled on mobile devices, disabled on desktop
+- **Storage**: Preference saved to localStorage
+- **Accessibility**: Easy to disable for users sensitive to vibration
+
+**Settings UI:**
+- Toggle switch: "Haptic Feedback" (on/off)
+- Description: "Vibration feedback for gameplay events"
+- Platform detection: Auto-enables on mobile, suggests enabling on desktop if supported
+
+### Performance Considerations
+
+**Impact Analysis:**
+- **CPU Impact**: Minimal (vibration API calls are asynchronous)
+- **Battery Impact**: Low-Medium (pattern-based, not continuous)
+- **Memory Impact**: Negligible (pattern arrays are tiny)
+- **Frame Rate Impact**: None (non-blocking, async execution)
+
+**Optimization Strategies:**
+- **Throttling**: Limit haptic calls (max 1 per 100ms)
+- **Conditional Execution**: Only trigger if user enabled
+- **Pattern Caching**: Pre-define patterns, don't generate dynamically
+- **Feature Detection**: Check support once, cache result
+
+### Implementation Details
+
+**Feature Detection:**
+```typescript
+const supportsVibration = (): boolean => {
+  return 'vibrate' in navigator;
+};
+```
+
+**Pattern Execution:**
+```typescript
+// Trigger haptic feedback
+if (hapticEnabled && supportsVibration()) {
+  navigator.vibrate([50, 50, 50]); // Turn win pattern
+}
+```
+
+**Throttling:**
+- Prevents rapid successive vibrations
+- Minimum 100ms between haptic calls
+- Ensures battery efficiency and user comfort
+
+**Graceful Degradation:**
+- Game functions normally if haptics unavailable
+- No errors thrown if API not supported
+- Visual/audio feedback still provides confirmation
+
+### Accessibility
+
+**Considerations:**
+- **User Control**: Easy toggle in settings
+- **Respect Preferences**: Can be disabled without affecting gameplay
+- **Multi-Modal**: Haptics complement visual/audio feedback, don't replace it
+- **Battery Awareness**: Users can disable to save battery
+- **Comfort**: Some users may find vibrations uncomfortable
+
+**Best Practices:**
+- Never rely solely on haptics for critical information
+- Always provide visual/audio alternatives
+- Respect user preferences (stored in settings)
+- Conservative use (high-impact moments only)
+
+### Cross-Platform Behavior
+
+**Mobile (Primary Target):**
+- Full support on Android Chrome/Firefox
+- Limited support on iOS Safari (requires user gesture)
+- Enabled by default
+- Enhances mobile gaming experience
+
+**Desktop:**
+- Limited support (only if device has vibration capability)
+- Disabled by default
+- Graceful degradation (no errors)
+- Visual/audio feedback provides confirmation
+
+**Progressive Enhancement:**
+- Works when available
+- Doesn't break when unavailable
+- Enhances experience without requiring it
+
 ## UI and UX
 
 ### Main Game Table Layout (375x767 Base)
@@ -7322,15 +8001,16 @@ Chain bursts trigger with explosive visual effects when chain thresholds are rea
 
 Bigfoot War is built as a lightweight, mobile-first web app using Next.js for server-side rendering and React for interactive components. The core game runs in the browser with minimal server dependencies, leveraging local storage for anonymous play and cloud integration for paid users. Canvas API handles card animations and pixel art rendering for a retro SNES feel. Deployment on Vercel ensures fast global delivery, with Prisma managing any backend data needs. The design prioritizes performance on low-end mobiles (e.g., 60fps draws) and zero-friction entry—no initial auth or installs.
 
-### Architecture Overview
+### Architecture
 
 **Technology Stack:**
 - **Frontend Framework**: Next.js 14+ (App Router) with React 18+
 - **Styling**: Tailwind CSS for responsive, utility-first styling
 - **State Management**: Zustand for game state (selector-based subscriptions prevent unnecessary re-renders, critical for 60fps mobile performance)
-- **Rendering**: Canvas API for card animations
-- **Backend**: Vercel Serverless Functions (API routes)
+- **Rendering**: Raw Canvas API (no Konva.js, no WebGL) for card draws/flips, avatar reactions, and minimal animations (card slide-ins, health bar fills). Canvas API chosen for minimal bundle size and full control. Pixel art scales via CSS (`image-rendering: pixelated`).
+- **Backend**: Vercel Serverless Functions (API routes) for cloud sync, payments, ads, and leaderboards. No always-on server. Prisma Client for DB interactions in functions.
 - **Database**: Vercel Postgres via Prisma ORM (PAID users only)
+- **Cache**: Vercel KV (Redis) for session caching, rate limiting, and leaderboard caching
 - **Authentication**: Clerk (PAID users only)
 - **Payments**: Stripe Checkout and Payment Intents
 - **Ads**: Google AdMob Web SDK
@@ -7343,30 +8023,107 @@ Bigfoot War is built as a lightweight, mobile-first web app using Next.js for se
 - **Performance**: Target 60fps, <1MB initial bundle, <3s load time
 - **Zero-Friction**: No mandatory login, no app install required
 
-### Architecture
-- **Frontend**: Next.js 14+ (App Router) with React 18+. One persistent Game Table component (`/pages/index.tsx`) handles pre/main/post-game via conditional rendering and overlays. Custom modal components (no external library) for overlays. UI: Tailwind CSS for responsive, portrait-locked layouts (media queries enforce vertical stack).
-- **Rendering**: Raw Canvas API (no Konva.js, no WebGL) for card draws/flips, avatar reactions, and minimal animations (card slide-ins, health bar fills). Canvas API chosen for minimal bundle size and full control. Pixel art scales via CSS (`image-rendering: pixelated`).
-- **Backend**: Vercel serverless functions (API routes) for cloud sync, payments, and ads. No always-on server. Prisma Client for DB interactions in functions.
-- **State Management**: Zustand for in-game state (decks, HP, specials). Zustand provides optimal performance for frequent state updates (every turn) and avoids unnecessary re-renders critical for 60fps mobile gameplay. Sync to cloud post-upgrade via API calls.
+**Implementation Details:**
+- **Frontend**: One persistent Game Table component handles pre/main/post-game via conditional rendering and overlays. Custom modal components (no external library) for overlays. UI: Tailwind CSS for responsive, portrait-locked layouts (media queries enforce vertical stack).
+- **State Management**: Zustand for in-game state (decks, HP, specials). Zustand selected over Redux Toolkit for:
+- **Bundle Size**: ~3KB minified vs Redux Toolkit ~40KB minified (13x smaller)
+- **Performance**: Selector-based subscriptions prevent unnecessary re-renders (critical for 60fps mobile performance)
+- **Boilerplate**: Minimal setup, no action creators, reducers, or middleware required
+- **Developer Experience**: Simpler API, easier to learn, faster development
+- **Use Case Fit**: Perfect for game state with frequent updates (every turn) where fine-grained control over re-renders is essential
+
+Implementation: Use Zustand with `immer` middleware for immutable updates, create selectors for each component to prevent unnecessary re-renders, persist middleware for localStorage/IndexedDB integration. Sync to cloud post-upgrade via API calls.
 
 ### Data Storage
-- **Local Storage (Default/Anonymous)**: `localStorage` stores preferences (sound, last Warlord). IndexedDB (via `idb-keyval`) stores game data (XP, Gold, unlocks as JSON blobs). Anonymized UUID generated on load (`crypto.randomUUID()`) keys data and tracks analytics. Saves auto on events (win/loss); warns on quota limits.
-- **Cloud Storage (Paid Upgrade)**: Vercel Postgres via Prisma ORM stores synced data. Schema:
+
+**Local Storage Strategy:**
+
+- **IndexedDB**: Used for game data (XP, Gold, unlocks, game state, deck states). Provides:
+  - Large storage capacity (typically 50% of disk space, minimum 10MB)
+  - Asynchronous operations (non-blocking)
+  - Structured data storage (objects, arrays without serialization)
+  - Transaction support for data integrity
+  - Indexed queries for efficient retrieval
+  - Storage quota checked via `navigator.storage.estimate()`, warn user if >80% capacity
+
+- **localStorage**: Used for simple preferences (sound on/off, last selected Warlord, haptic enabled). Provides:
+  - Synchronous access (suitable for small, frequently-read data)
+  - Simple key-value API
+  - 5-10MB limit per origin (sufficient for preferences)
+  - Persists across browser sessions
+  - Graceful degradation if quota exceeded (fallback to sessionStorage for session-only preferences)
+
+**UUID Generation and Persistence:**
+- **Generation**: Use `crypto.randomUUID()` on first app load (browser-native, cryptographically secure)
+- **Persistence**: Store in IndexedDB `user_metadata` object store with key `user_uuid`
+- **Fallback**: If IndexedDB unavailable, store in localStorage as `bfw_user_uuid`
+- **Recovery**: On app load, check IndexedDB first, then localStorage fallback
+- **Binding**: UUID is browser-specific (tied to origin). If user clears browser data, new UUID generated (treated as new anonymous user)
+- **Cloud Linking**: On paid upgrade, UUID linked to Clerk user ID in database (enables cross-device sync)
+
+**UUID Lifecycle:**
+1. First visit: Generate UUID → Store in IndexedDB → Use for analytics
+2. Subsequent visits: Retrieve UUID from IndexedDB → Continue using same UUID
+3. Paid upgrade: Link UUID to Clerk account → Enable cloud sync
+4. Data cleared: New UUID generated → Treated as new user (local data lost)
+
+**Migration Strategy:**
+- On first load, check for existing localStorage game data
+- Migrate to IndexedDB automatically
+- Keep localStorage for preferences only
+
+**Cloud Storage (Paid Upgrade):**
+- Vercel Postgres via Prisma ORM stores synced data. Schema:
   ```
   model User {
     id      String @id @default(uuid())
     email   String @unique
     data    Json   // Serialized progress (XP, unlocks, galleries)
     adFree  Boolean @default(true)
+    version Int    @default(1) // For conflict resolution
+    lastModified DateTime @default(now())
   }
   ```
-  Migration: On $3.99 purchase, API route migrates local JSON to DB, linking via UUID/email. Bidirectional sync: Pull on load if logged in; push on changes.
-- **Assets**: Static pixel art (sprites, emotes) hosted in Next.js public folder (`/public/assets/`). Critical assets (default Warlords) preloaded for offline feel; variants lazy-loaded.
+- Migration: On $3.99 purchase, API route migrates local JSON to DB, linking via UUID/email. Bidirectional sync: Pull on load if logged in; push on changes.
+- Conflict Resolution: Version-based conflict detection with last-write-wins for minor conflicts (<5 minutes), user prompt for major conflicts (>5 minutes). See API Design section for details.
+
+**Assets**: Static pixel art (sprites, emotes) hosted in Next.js public folder (`/public/assets/`). Critical assets (default Warlords) preloaded for offline feel; variants lazy-loaded.
 
 ### Authentication and Payments
 - **Auth**: No mandatory login. Clerk provides email-based cloud save (magic links post-purchase). Clerk's Next.js SDK checks session on load; if present, fetches/syncs data.
 - **Payments**: Stripe handles $3.99 one-time (ad-free + cloud) and Gold IAP. API route creates Checkout session (`/api/checkout`); webhook handles fulfillment (sets adFree, migrates data). Guest payments supported; email captured for receipts/refunds.
-- **Ads**: Google AdMob web SDK provides interstitials/rewarded videos (post-game CTAs). Impressions tracked via anonymized events; auto-Gold for paid users.
+- **Ads**: Google AdMob Web SDK (`admob-plus-web`) provides interstitials/rewarded videos.
+
+**Ad Placement Strategy:**
+- **Interstitial Ads**: Post-game only (after win/loss screen, before returning to pre-game)
+- **Rewarded Video Ads**: Optional, user-initiated via "Watch Ad for Gold" CTA (pre-game/post-game)
+- **Frequency Capping**:
+  - Interstitials: Maximum 1 per 3 completed games (track via localStorage counter)
+  - Rewarded videos: Unlimited (user-initiated), but max 1 per game session
+  - Paid users: No ads shown (adFree flag checked before ad display)
+
+**Ad Implementation:**
+- Initialize on app load (non-blocking)
+- Preload interstitial ad after game start (ready for post-game)
+- Show interstitial only if: game completed AND frequency cap allows AND user not paid
+- Rewarded video: Show only on explicit user tap, verify completion via SDK callback
+
+**Ad Blocking Detection:**
+- Check `navigator.userAgent` for common ad blockers (heuristic only)
+- If ad fails to load after 3s timeout, assume blocked → Show fallback message
+- Don't penalize users for ad blocking (graceful degradation)
+
+**Test Ad Configuration:**
+- Development: Use AdMob test ad unit IDs
+- Staging: Use test ad unit IDs
+- Production: Use live ad unit IDs (configured via environment variables)
+
+**Error Handling:**
+- Ad load failure: Log error, continue game flow (no user impact)
+- Ad display failure: Show fallback message, allow user to continue
+- Network failure: Cache ad for next session, show when network available
+
+Impressions tracked via anonymized events; auto-Gold for paid users.
 
 ### Analytics
 - **Tracking**: Vercel Analytics tracks basics (sessions, devices). PostHog tracks events (wins, upgrades) tied to local UUID. No PII pre-purchase; emails hashed post-upgrade for cohorts.
@@ -7377,6 +8134,69 @@ Bigfoot War is built as a lightweight, mobile-first web app using Next.js for se
 - **Optimizations**: Code-splitting via Next.js; lazy components for overlays. Canvas offscreen rendering for smooth animations. Bundle size <1MB (pixel art compresses well). Lighthouse target: 90+ mobile score.
 - **Offline**: Service worker via Next-PWA caches assets/game logic for brief disconnects; local data ensures playability.
 - **Security**: No sensitive local data; HTTPS enforced. API rate-limited for sync to prevent abuse.
+
+### Haptic Feedback Implementation
+
+**API Usage:**
+- **Primary API**: W3C Vibration API (`navigator.vibrate()`)
+- **Feature Detection**: Check `'vibrate' in navigator` on app initialization
+- **Pattern Execution**: Async, non-blocking calls (no performance impact)
+- **Throttling**: Minimum 100ms between haptic calls (prevents rapid vibrations)
+
+**Implementation Pattern:**
+```typescript
+// Haptic utility (singleton pattern)
+class HapticManager {
+  private enabled: boolean = true;
+  private supported: boolean = false;
+  private lastVibration: number = 0;
+  private throttleMs: number = 100;
+
+  constructor() {
+    this.supported = 'vibrate' in navigator;
+    this.loadSettings();
+  }
+
+  public vibrate(pattern: number[]): void {
+    if (!this.enabled || !this.supported) return;
+    const now = Date.now();
+    if (now - this.lastVibration < this.throttleMs) return;
+    try {
+      navigator.vibrate(pattern);
+      this.lastVibration = now;
+    } catch (error) {
+      // Graceful degradation - no errors thrown
+    }
+  }
+}
+```
+
+**Integration Points:**
+- Card flip: `haptic.vibrate([50])`
+- Turn win: `haptic.vibrate([50, 50, 50])`
+- Turn loss: `haptic.vibrate([100])`
+- Chain burst: `haptic.vibrate([50, 100, 50, 100, 50])`
+- Signature card: `haptic.vibrate([100, 50, 100, 50, 100])`
+- Game win: `haptic.vibrate([100, 50, 100, 50, 100, 50, 100])`
+- Level up: `haptic.vibrate([200, 100, 200])`
+
+**Performance Impact:**
+- **CPU**: Negligible (async API calls)
+- **Battery**: Low-Medium (pattern-based, not continuous)
+- **Memory**: Negligible (pattern arrays <100 bytes)
+- **Frame Rate**: None (non-blocking execution)
+
+**Browser Compatibility:**
+- ✅ Chrome/Edge (Android, Desktop): Full support
+- ✅ Firefox (Android, Desktop): Full support
+- ⚠️ Safari iOS: Limited (requires user gesture)
+- ❌ Safari Desktop: No support
+
+**Graceful Degradation:**
+- Feature detection prevents errors on unsupported browsers
+- Game functions normally without haptics
+- Visual/audio feedback provides confirmation
+- User preference stored in localStorage
 
 ### State Management
 
@@ -7438,6 +8258,9 @@ interface GameState {
 /api/webhook           - Stripe webhook handler (payment fulfillment)
 /api/sync              - Cloud sync (PAID users only)
 /api/analytics         - Analytics event tracking
+/api/leaderboards      - Global leaderboard data (GET) and updates (POST)
+/api/share/[id]        - Share link content retrieval
+/api/share/create      - Create share link (optional)
 ```
 
 **API Endpoints:**
@@ -7452,22 +8275,63 @@ interface GameState {
 - Processes payment fulfillment
 - Migrates local data to cloud (on upgrade)
 - Updates user account status
+- Webhook signature verification required for security
+- Idempotency handling via event IDs
 
 **POST /api/sync** (PAID only)
 - Syncs player progress to cloud
 - Requires authentication (Clerk session)
 - Bidirectional sync (pull on load, push on changes)
+- **Conflict Resolution**: Version-based conflict detection
+  - Minor conflicts (<5 minutes difference): Last-write-wins
+  - Major conflicts (>5 minutes difference): User prompt to choose
+  - Merge strategy: XP/Gold summed, unlocks unioned, preferences use most recent
+- **Server-Side Validation**: Checksum validation, anomaly detection, rate limiting
+  - Max XP per game: 500, Max XP per hour: 2000
+  - Max Gold per game: 100, Max Gold per hour: 400
+  - Unlock prerequisites verified
+  - Failed validation: Return 400 error, log incident
+- Rate limit: Max 1 sync per 30 seconds
 
 **POST /api/analytics**
 - Tracks game events (wins, losses, upgrades)
 - Anonymized tracking (UUID-based, no PII)
-- Rate-limited to prevent abuse
+- Rate-limited to prevent abuse (100 requests per 15 minutes per UUID)
+
+**GET /api/leaderboards**
+- Fetch leaderboard data
+- Query params: `category` (level|defeats|streak|wins|collection|gauntlet), `limit` (default 100), `offset` (default 0)
+- Returns: Array of leaderboard entries with rank, player info (anonymized), score
+- Includes player's own rank/position
+- Cached for 5 minutes (Vercel KV)
+
+**POST /api/leaderboards/update**
+- Update player ranking (called after game completion)
+- Body: `{ category, score, playerId }`
+- Updates leaderboard if player qualifies for top 100
+- Returns: Updated player rank
+- For paid users: Use Clerk user ID; for anonymous: Use UUID
+- Asynchronous update (non-blocking)
+
+**GET /api/share/[id]**
+- Fetch shared content metadata
+- Returns: Game result data or achievement data for rendering share page
+- Used by static page route `/share/[id]` to render shareable content
+- Share data stored in Vercel Postgres (for paid users) or KV (for anonymous)
+- Share links expire after 30 days
+
+**POST /api/share/create** (Optional)
+- Create share link (for analytics)
+- Body: `{ type: 'game' | 'achievement', data: {...} }`
+- Returns: `{ shareId: string, url: string }`
+- Stores share data in database (TTL: 30 days)
 
 **Error Handling:**
 - Graceful degradation: API failures don't break gameplay
 - Retry logic: Automatic retries for transient failures
 - User feedback: Clear error messages for user-facing failures
 - Logging: Server-side logging for debugging
+- Standardized error format: `{ error: string, code: string, details?: any }`
 
 ### Performance Optimization
 
@@ -7496,11 +8360,42 @@ interface GameState {
 - Memory management: Unload unused assets, prevent memory leaks
 
 **Performance Targets:**
-- Initial load: <2 seconds (3G connection)
-- Time to Interactive: <3 seconds
-- Frame rate: 60fps during gameplay
-- Lighthouse score: 90+ mobile score
+
+**Bundle Size:**
+- Initial bundle: <1MB (gzipped)
+- Total bundle: <5MB (gzipped, includes lazy-loaded chunks)
+- Measurement: Next.js bundle analyzer, Lighthouse
+
+**Load Performance:**
+- First Contentful Paint (FCP): <1.5s (3G connection)
+- Time to Interactive (TTI): <3s (3G connection)
+- Largest Contentful Paint (LCP): <2.5s
+- Measurement: Lighthouse mobile, WebPageTest
+
+**Runtime Performance:**
+- Frame rate: Target 60fps (acceptable: 30fps minimum on low-end devices)
 - Memory usage: <50MB on mobile devices
+- Measurement: Chrome DevTools Performance profiler, Memory profiler
+
+**Performance Budget:**
+- Lighthouse mobile score: 90+ (Performance category)
+- Core Web Vitals: All metrics in "Good" range
+- Measurement: Lighthouse CI in CI/CD pipeline
+
+**Implementation Notes:**
+- All performance targets measured on:
+  - Device: Moto G4 (low-end Android, 2016)
+  - Network: 3G throttling (1.6 Mbps down, 750 Kbps up)
+  - Browser: Chrome Mobile (latest)
+
+**60fps Optimization Techniques:**
+- Frame skipping: If frame takes >20ms, skip next frame
+- Object pooling: Reuse card objects, particle objects, animation objects
+- Canvas optimization: Offscreen canvas for pre-rendered sprites, batch draw calls
+- State update batching: Batch multiple state updates in single frame
+- Asset management: Lazy load Warlord sprites, compress sprite sheets (WebP, 80% quality)
+- Code splitting: Lazy load post-game components, code split by route
+- Fallback: If device can't maintain 30fps, reduce to 30fps target, disable particle effects
 
 ### Error Handling
 
@@ -7593,9 +8488,44 @@ interface GameState {
 - **CDN**: Vercel Edge Network for global asset delivery
 - **Target**: Support 1k+ DAU initially, scale to 10k+ DAU
 - **Monitoring**: DB usage monitored, alerts for capacity limits
-- **Redis**: Vercel KV for session caching (implemented from launch)
+- **Redis**: Vercel KV (Redis) for caching and rate limiting (implemented from launch)
+
+**Vercel KV (Redis) Use Cases:**
+
+1. **Session Caching** (Primary Use):
+   - Cache Clerk session tokens (TTL: 1 hour)
+   - Key format: `session:{user_id}`
+   - Reduces database queries for session validation
+   - TTL: 3600 seconds (1 hour)
+
+2. **Rate Limiting** (Secondary Use):
+   - Track API request counts per UUID/IP
+   - Key format: `ratelimit:{uuid}:{endpoint}`
+   - Sliding window: 100 requests per 15 minutes per endpoint
+   - TTL: 900 seconds (15 minutes)
+
+3. **Leaderboard Caching** (Tertiary Use):
+   - Cache top 100 leaderboard entries
+   - Key format: `leaderboard:{type}` (e.g., `leaderboard:streak`, `leaderboard:wins`)
+   - Refresh: Every 5 minutes
+   - TTL: 300 seconds (5 minutes)
+
+4. **Ad Frequency Tracking** (Future Use):
+   - Track interstitial ad display count per UUID
+   - Key format: `ad_freq:{uuid}`
+   - Reset: Every 24 hours
+   - TTL: 86400 seconds (24 hours)
+
+**Implementation:**
+- Use `@vercel/kv` SDK in API routes
+- Connection pooling handled by Vercel
+- Automatic failover (graceful degradation if KV unavailable)
+- Simple key-value pairs (strings), serialize complex objects as JSON strings
 
 **Backup and Recovery:**
 - **Database Backups**: Automatic daily backups (Vercel Postgres)
 - **Data Recovery**: Point-in-time recovery available
 - **Disaster Recovery**: Multi-region redundancy (Vercel infrastructure)
+
+---
+
