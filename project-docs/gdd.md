@@ -932,6 +932,7 @@ App Exit / Background
 - Level/XP display (top-right)
 - Primary CTA: "Play" button (bottom-center)
 - Secondary CTAs: Menu icon, Warlord selection buttons
+- **Gauntlet Mode Toggle:** Mode selector button (top-center, visible only if unlocked)
 
 **Pre-Game Flow:**
 
@@ -939,9 +940,26 @@ App Exit / Background
    - Show selected Warlords (default or last played)
    - Display Gold balance
    - Display level and XP progress bar
+   - **Gauntlet Mode Indicator:** If Gauntlet Mode unlocked, show mode toggle button
+   - **Gauntlet Status:** If active Gauntlet run exists, show "Resume Gauntlet" option
 
-2. **Warlord Selection**
-   - Player taps "Select Enemy Warlord" button
+2. **Mode Selection (Gauntlet Mode Unlocked)**
+   - Player taps "Mode" button (top-center)
+   - Mode Selection Overlay opens
+   - Options displayed:
+     - "Standard Mode" (default, current mode)
+     - "Gauntlet Mode" (unlocked after defeating all 59 Warlords)
+   - **Gauntlet Mode Active:** Shows current wave/battle progress, best wave reached
+   - **Resume Option:** If active Gauntlet run exists, "Resume Gauntlet" button prominent
+   - Player selects mode
+   - Overlay closes, mode indicator updates
+   - **Gauntlet Mode Active:** Pre-Game screen updates to show Gauntlet-specific UI (wave counter, enemy selection disabled)
+
+3. **Warlord Selection**
+   - **Standard Mode:** Player can select both Enemy and Player Warlords
+   - **Gauntlet Mode:** Enemy Warlord selection disabled (automatically assigned by wave), Player Warlord selection enabled
+   
+   - Player taps "Select Enemy Warlord" button (Standard Mode only)
    - Enemy Warlord Select Gallery opens
    - Shows all unlocked Enemy Warlords
    - **New Players:** Levels 1-5 unlocked immediately (Sasquatch, Skunk Ape, Wendigo, Jersey Devil, Grassman)
@@ -967,7 +985,7 @@ App Exit / Background
    - Player selects Player Warlord
    - Gallery closes, new Player Warlord displayed
 
-3. **Battle Item Management**
+4. **Battle Item Management**
    - Player taps Player Warlord avatar
    - Warlord Details Overlay opens
    - Shows equipped Battle Item (if any)
@@ -978,7 +996,7 @@ App Exit / Background
    - **Level Restriction:** Battle Items are only available during the level they're unlocked. When advancing to a new level, player starts without Battle Items from previous levels
    - Overlay closes after selection
 
-4. **Challenge Viewing**
+5. **Challenge Viewing**
    - Player taps "Challenges" button (if available)
    - Challenges Overlay opens
    - Shows active challenges and progress
@@ -986,7 +1004,7 @@ App Exit / Background
    - Player can view rewards
    - Overlay closes
 
-5. **Leaderboard Viewing**
+6. **Leaderboard Viewing**
    - Player taps "Leaderboards" button (if available)
    - Leaderboards Overlay opens
    - Shows global leaderboards:
@@ -997,13 +1015,14 @@ App Exit / Background
    - Shows player's rank and position
    - Overlay closes
 
-6. **Gold Balance Check**
-   - System checks if Gold fee is required
+7. **Gold Balance Check (Standard Mode Only)**
+   - **Standard Mode:** System checks if Gold fee is required
    - First 3 attempts per Enemy Warlord: Free
    - Subsequent attempts: 25 Gold fee
    - If insufficient Gold: Show warning before game starts
+   - **Gauntlet Mode:** No Gold fee required (free to play)
 
-7. **Game Fee Payment (If Required)**
+8. **Game Fee Payment (If Required, Standard Mode Only)**
    - If Gold fee required and player has sufficient Gold:
      - Deduct Gold immediately
      - Show "-25 Gold" animation
@@ -1016,7 +1035,7 @@ App Exit / Background
        - "Cancel"
      - Player selects option or cancels
 
-8. **Game Start**
+9. **Game Start**
    - Player taps "Play" button
    - Pre-game CTAs fade out
    - Game table appears
@@ -1050,20 +1069,25 @@ App Exit / Background
    - **XP Gained:** Total XP earned (with breakdown)
      - Turn XP: X XP
      - Completion Bonus: X XP
-     - First-Time Bonus: X XP (if applicable)
+     - First-Time Bonus: X XP (if applicable, Standard Mode only)
      - Streak Bonus: X XP (if applicable)
-     - Daily Challenge Bonus: +50 XP (if Warlord of the Day defeated)
+     - Gauntlet Streak Bonus: X XP (if applicable, Gauntlet Mode only)
+     - Wave Completion Bonus: X XP (if applicable, Gauntlet Mode only)
+     - Daily Challenge Bonus: +50 XP (if Warlord of the Day defeated, Standard Mode only)
      - Total: X XP
    - **Gold Gained:** Total Gold earned (with breakdown)
      - Turn Gold: X Gold
      - Completion Bonus: X Gold
-     - First-Time Bonus: X Gold (if applicable)
+     - First-Time Bonus: X Gold (if applicable, Standard Mode only)
      - Streak Bonus: X Gold (if applicable)
-     - Daily Challenge Bonus: +100 Gold (if Warlord of the Day defeated)
+     - Gauntlet Streak Bonus: X Gold (if applicable, Gauntlet Mode only)
+     - Wave Completion Bonus: X Gold (if applicable, Gauntlet Mode only)
+     - Daily Challenge Bonus: +100 Gold (if Warlord of the Day defeated, Standard Mode only)
      - Total: X Gold
    - **Level Progress:** Progress bar showing XP toward next level
    - **Streak Display:** Final streak count (if applicable)
-   - **Daily Challenge Complete:** "⭐ Daily Challenge Complete!" message and animation (if Warlord of the Day defeated)
+   - **Gauntlet Progress:** Wave/battle progress (if Gauntlet Mode active)
+   - **Daily Challenge Complete:** "⭐ Daily Challenge Complete!" message and animation (if Warlord of the Day defeated, Standard Mode only)
    - **Statistics Update:** Games played, win rate, etc.
 
 4. **Progress Bar Animations**
@@ -1119,21 +1143,55 @@ App Exit / Background
      - "Purchase Gold" button (IAP) - always available
      - IAP packages displayed if player taps
 
-9. **Next Action Prompts**
-   - **Primary CTA:** "Play Again" (restart with same Warlords)
-   - **Secondary CTAs:**
-     - "Select Warlord" (change Warlords)
-     - "View Progress" (detailed statistics)
-     - "View Challenges" (challenge progress)
-     - "View Leaderboards" (rankings)
-     - "Share Result" (social sharing)
-     - "Menu" (access game menu)
+9. **Gauntlet Mode Transition Check (Gauntlet Mode Only)**
+   - **Battle Win:**
+     - Check if wave complete (5 battles won)
+     - If wave complete: Show "Wave Complete!" celebration overlay
+     - Wave completion bonus displayed
+     - Milestone check (if applicable)
+     - "Continue to Next Battle" button (proceeds to next battle in wave)
+     - "Change Warlord" option (allows Warlord selection before next battle)
+   - **Battle Loss:**
+     - Show "Gauntlet Run Ended" message
+     - Display final wave reached
+     - Show total rewards earned during run
+     - "Restart Gauntlet" button (starts new run from Wave 1)
+     - "Exit to Menu" button (returns to Pre-Game)
+   - **Standard Mode:** Skip this step
 
-10. **Player Decision**
+10. **Next Action Prompts**
+   - **Standard Mode:**
+     - **Primary CTA:** "Play Again" (restart with same Warlords)
+     - **Secondary CTAs:**
+       - "Select Warlord" (change Warlords)
+       - "View Progress" (detailed statistics)
+       - "View Challenges" (challenge progress)
+       - "View Leaderboards" (rankings)
+       - "Share Result" (social sharing)
+       - "Menu" (access game menu)
+   - **Gauntlet Mode (Battle Win):**
+     - **Primary CTA:** "Continue Gauntlet" (proceed to next battle)
+     - **Secondary CTAs:**
+       - "Change Warlord" (select different Player Warlord)
+       - "Exit Gauntlet" (save progress, return to Pre-Game)
+       - "View Gauntlet Stats" (current run statistics)
+   - **Gauntlet Mode (Battle Loss):**
+     - **Primary CTA:** "Restart Gauntlet" (start new run)
+     - **Secondary CTAs:**
+       - "Exit to Menu" (return to Pre-Game)
+       - "View Gauntlet Leaderboard" (see rankings)
+
+11. **Player Decision**
     - Player selects next action
-    - If "Play Again": Return to Pre-Game (same Warlords)
-    - If "Select Warlord": Return to Pre-Game (Warlord selection)
-    - If other: Navigate to respective screen/overlay
+    - **Standard Mode:**
+      - If "Play Again": Return to Pre-Game (same Warlords)
+      - If "Select Warlord": Return to Pre-Game (Warlord selection)
+      - If other: Navigate to respective screen/overlay
+    - **Gauntlet Mode:**
+      - If "Continue Gauntlet": Proceed to next battle (enemy auto-selected)
+      - If "Change Warlord": Warlord selection overlay, then continue
+      - If "Restart Gauntlet": Reset Gauntlet state, start Wave 1
+      - If "Exit Gauntlet": Save progress, return to Pre-Game
     - If exit: Save progress, app backgrounds/closes
 
 **Post-Game State Updates:**
@@ -1374,6 +1432,11 @@ App Exit / Background
 - **Highest Win Streak:** Top players by best turn streak
 - **Total Games Won:** Top players by total game wins
 - **Collection Complete:** Players who've defeated all 59 Warlords
+- **Gauntlet Mode Leaderboards:** (Unlocked after defeating all 59 Warlords)
+  - **Highest Wave Reached:** Top players by best wave completed
+  - **Longest Gauntlet Streak:** Top players by consecutive Gauntlet wins
+  - **Total Gauntlet Battles Won:** Top players by lifetime Gauntlet victories
+  - **Fastest Wave Completion:** Top players by fastest wave completion time
 
 **Leaderboard Display:**
 - Pre-game: "Leaderboards" button
@@ -1383,7 +1446,8 @@ App Exit / Background
   - Player's rank highlighted
   - Player's position shown (e.g., "Rank #1,234")
   - Refresh button to update rankings
-  - Filter by category (Level, Defeats, Streak, Wins, Collection)
+  - Filter by category (Level, Defeats, Streak, Wins, Collection, Gauntlet)
+  - **Gauntlet Tab:** Separate tab for Gauntlet leaderboards (visible only if unlocked)
 
 **Leaderboard Updates:**
 - Real-time: Updates after each game completion
@@ -1500,6 +1564,178 @@ App Exit / Background
 6. Share option: "Share Achievement" button
 7. Continue to post-game flow
 
+### Endless Gauntlet Mode
+
+Endless Gauntlet Mode is an infinite challenge mode that unlocks after defeating all 59 Warlords. Players face an escalating series of battles with increasing difficulty, testing their mastery of the game's mechanics and providing a long-term endgame challenge.
+
+#### Unlock Requirements
+
+**Prerequisites:**
+- **Master Collector Achievement:** Must have defeated all 59 Warlords (warlordCompletion = 100%)
+- **Unlock Notification:** Upon completing the 59th Warlord, special celebration overlay appears:
+  - "Endless Gauntlet Unlocked!" message
+  - Visual: Epic particle burst, triumphant chiptune fanfare
+  - Badge: "Gauntlet Master" badge awarded
+  - Rewards: 1,000 Gold + 500 XP bonus
+
+**Access:**
+- New "Gauntlet Mode" button appears in Pre-Game screen (prominent placement, glowing effect)
+- Button remains visible once unlocked (permanent unlock)
+- Can be accessed from any Pre-Game state
+
+#### Core Mechanics
+
+**Progressive Difficulty:**
+- **Wave System:** Battles organized into "Waves" (sets of 5 battles)
+- **Wave 1:** Levels 1-5 Warlords (randomized order)
+- **Wave 2:** Levels 6-10 Warlords (randomized order)
+- **Wave 3:** Levels 11-15 Warlords (randomized order)
+- **Pattern Continues:** Each wave cycles through 5 consecutive level ranges
+- **After Wave 12 (Levels 56-59):** Cycles repeat with **Difficulty Modifiers** applied
+
+**Difficulty Scaling:**
+- **Wave 1-12:** Standard difficulty (no modifiers)
+- **Wave 13+:** +10% enemy HP and damage per wave cycle
+- **Wave 25+:** +20% enemy HP and damage per wave cycle
+- **Wave 50+:** +30% enemy HP and damage per wave cycle
+- **Maximum Scaling:** Caps at +100% (Wave 100+)
+- **AI Difficulty:** Enemy AI uses optimized strategies (Replay Mode difficulty) starting Wave 13+
+
+**Enemy Selection:**
+- **Randomization:** Each wave randomly selects 5 Warlords from the level range
+- **No Repeats:** Within a single wave, no Warlord appears twice
+- **Full Rotation:** All 59 Warlords appear before any repeats (ensures variety)
+
+**Player Warlord Selection:**
+- **Free Choice:** Player can select any unlocked Player Warlord before each battle
+- **Warlord Switching:** Can change Warlord between battles (no penalty)
+- **Strategic Planning:** Allows adaptation to upcoming enemy types
+
+**Battle Items:**
+- **Full Access:** All owned Battle Items available (no level restrictions)
+- **Charges Reset:** Battle Item charges reset to full after each battle
+- **Strategic Use:** Encourages optimal item usage per battle
+
+**Charms:**
+- **Full Access:** All owned Charms available for equipping
+- **Durability Persists:** Charm durability carries across battles within the same Gauntlet run
+- **Strategic Planning:** Durability management becomes critical for long runs
+
+#### Progression and Rewards
+
+**Wave Completion Rewards:**
+- **Per Battle Win:** Standard turn/game rewards (Gold, XP)
+- **Wave Completion Bonus:** +200 Gold + 100 XP (after completing all 5 battles in a wave)
+- **Milestone Bonuses:**
+  - Wave 5 Complete: +500 Gold + 250 XP
+  - Wave 10 Complete: +1,000 Gold + 500 XP
+  - Wave 25 Complete: +2,500 Gold + 1,250 XP
+  - Wave 50 Complete: +5,000 Gold + 2,500 XP
+  - Wave 100 Complete: +10,000 Gold + 5,000 XP
+
+**Streak Multipliers:**
+- **Consecutive Wins:** Streak multipliers apply (same as standard gameplay)
+- **Gauntlet Streak:** Separate streak counter for Gauntlet mode (persists across battles)
+- **Streak Bonus:** +5% Gold/XP per consecutive win (stacks with turn streak multipliers)
+- **Streak Reset:** Resets to 0 on any battle loss
+
+**Loss Conditions:**
+- **Battle Loss:** Losing any battle ends the Gauntlet run
+- **Progress Saved:** Wave progress saved up to last completed wave
+- **Rewards Retained:** All rewards earned up to loss point are kept
+- **Restart Option:** Can immediately restart from Wave 1 or exit to Pre-Game
+
+**Leaderboard Integration:**
+- **Gauntlet Leaderboards:** Separate leaderboard category for Gauntlet mode
+- **Metrics Tracked:**
+  - Highest Wave Reached
+  - Longest Gauntlet Streak
+  - Total Gauntlet Battles Won
+  - Fastest Wave Completion Time
+- **Rankings:** Global leaderboard showing top Gauntlet performers
+
+#### UI and Flow
+
+**Pre-Game Gauntlet Selection:**
+- **Mode Toggle:** "Standard Mode" / "Gauntlet Mode" toggle button (top-center of Pre-Game screen)
+- **Gauntlet Indicator:** When Gauntlet Mode active, prominent "GAUNTLET MODE" banner displayed
+- **Wave Display:** Shows current wave number and progress (e.g., "Wave 3 - Battle 2/5")
+- **Best Run Display:** Shows personal best wave reached (e.g., "Best: Wave 12")
+
+**Between Battles:**
+- **Victory Screen:** Brief celebration, rewards displayed, "Continue" button
+- **Wave Complete Screen:** Special celebration for wave completion, milestone bonuses highlighted
+- **Warlord Selection:** Option to change Player Warlord before next battle
+- **Battle Item Management:** Can review/equip Battle Items
+- **Exit Option:** Can exit Gauntlet at any time (progress saved)
+
+**Gauntlet Run State:**
+- **State Persistence:** Gauntlet progress saved after each battle
+- **Resume Capability:** Can resume interrupted Gauntlet run (from last completed battle)
+- **Abandon Option:** Can abandon current run to start fresh (confirmation required)
+
+**Visual Indicators:**
+- **Wave Counter:** Prominent display showing current wave and battle number
+- **Difficulty Indicator:** Visual indicator showing current difficulty scaling (e.g., "+20% Difficulty")
+- **Streak Display:** Gauntlet streak counter displayed prominently
+- **Progress Bar:** Visual progress bar showing wave completion percentage
+
+#### Data Structure
+
+```typescript
+interface GauntletState {
+  active: boolean; // Whether currently in a Gauntlet run
+  currentWave: number; // Current wave number (1-based)
+  currentBattle: number; // Current battle within wave (1-5)
+  difficultyModifier: number; // Percentage increase (0-100)
+  streak: number; // Consecutive wins in current run
+  bestWave: number; // Personal best wave reached
+  totalBattlesWon: number; // Lifetime Gauntlet battles won
+  lastCompletedWave: number; // Last wave fully completed (for resume)
+  enemyPool: number[]; // Remaining Warlords in current wave
+}
+
+interface GauntletRewards {
+  waveCompletionBonus: number; // Gold bonus for completing wave
+  milestoneBonus: number; // Gold bonus for milestone waves
+  streakMultiplier: number; // Current streak multiplier
+}
+```
+
+#### Achievements
+
+**Gauntlet-Specific Achievements:**
+- **Gauntlet Initiate:** Complete Wave 1 (100 Gold + 50 XP)
+- **Gauntlet Veteran:** Complete Wave 10 (500 Gold + 250 XP + Badge)
+- **Gauntlet Master:** Complete Wave 25 (1,000 Gold + 500 XP + Badge)
+- **Gauntlet Legend:** Complete Wave 50 (2,500 Gold + 1,250 XP + Badge)
+- **Gauntlet Immortal:** Complete Wave 100 (5,000 Gold + 2,500 XP + Badge + Special Title)
+- **Perfect Gauntlet:** Complete Wave 10 without losing a single battle (1,000 Gold + 500 XP + Badge)
+- **Gauntlet Streak Master:** Achieve 50+ consecutive wins in Gauntlet mode (2,000 Gold + 1,000 XP + Badge)
+
+#### Balance Considerations
+
+**Reward Scaling:**
+- Rewards scale appropriately with difficulty increase
+- Milestone bonuses provide meaningful progression goals
+- Streak multipliers reward consistent performance
+
+**Difficulty Curve:**
+- Early waves (1-12) provide warm-up and familiarization
+- Mid waves (13-50) test mastery of game mechanics
+- Late waves (50+) become extreme challenges for dedicated players
+
+**Time Investment:**
+- Each battle: ~2-5 minutes (standard game length)
+- Each wave: ~10-25 minutes (5 battles)
+- Full run to Wave 100: ~3-4 hours (for top players)
+
+**Replayability:**
+- Random enemy selection ensures variety
+- Difficulty scaling provides long-term challenge
+- Leaderboard competition drives engagement
+- Milestone rewards create progression goals
+
 #### Exit Points and Re-entry
 
 **Natural Completion:**
@@ -1562,6 +1798,7 @@ App Exit / Background
 - Collection-focused gameplay
 - Achievement hunting
 - Leaderboard competition
+- **Endless Gauntlet Mode:** Unlocks after defeating all 59 Warlords, provides infinite challenge with escalating difficulty
 - Prestige unlocks
 
 **F2P vs PAID Experience:**
